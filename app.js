@@ -31,10 +31,24 @@
     klausurListe: document.getElementById('klausur-liste'),
     klausurLeer: document.getElementById('klausur-leer'),
     resetBtn: document.getElementById('reset-btn'),
+    motivationIcon: document.getElementById('motivation-icon'),
+    motivationTag: document.getElementById('motivation-tag'),
+    motivationSpruch: document.getElementById('motivation-spruch'),
     themeToggle: document.getElementById('theme-toggle'),
     themeToggleIcon: document.getElementById('theme-toggle-icon'),
     themeToggleText: document.getElementById('theme-toggle-text')
   };
+
+  /* Index 0 = Sonntag, 1 = Montag, ... 6 = Samstag (wie Date.getDay()). */
+  var WOCHENTAGE = [
+    { name: 'Sonntag', icon: '🌸', spruch: 'Sonntag heißt Kraft tanken: Ein kurzer Plan für morgen reicht völlig.' },
+    { name: 'Montag', icon: '💪', spruch: 'Neue Woche, neue Punkte – starte mit dem Fach, das dir am schwersten fällt.' },
+    { name: 'Dienstag', icon: '🎯', spruch: 'Dienstag ist Fleiß-Tag: Ein Thema richtig verstanden schlägt zehn überflogene Seiten.' },
+    { name: 'Mittwoch', icon: '⛰️', spruch: 'Bergfest! Die Hälfte ist geschafft – halte dein Tempo.' },
+    { name: 'Donnerstag', icon: '🚀', spruch: 'Donnerstag zählt doppelt: Jetzt noch einmal konzentriert, dann wird das Wochenende leichter.' },
+    { name: 'Freitag', icon: '🎉', spruch: 'Freitag: Kurz wiederholen, was diese Woche dran war – und dann verdient abschalten.' },
+    { name: 'Samstag', icon: '☕', spruch: 'Samstag gehört dir: 30 Minuten lernen, der Rest ist Pause mit gutem Gewissen.' }
+  ];
 
   /* ---------- Hilfsfunktionen ---------- */
 
@@ -280,6 +294,13 @@
 
   /* ---------- Rendering ---------- */
 
+  function renderMotivation() {
+    var tag = WOCHENTAGE[heuteOhneZeit().getDay()] || WOCHENTAGE[1];
+    el.motivationIcon.textContent = tag.icon;
+    el.motivationTag.textContent = tag.name;
+    el.motivationSpruch.textContent = tag.spruch;
+  }
+
   function renderPunkte() {
     el.notenListe.textContent = '';
 
@@ -443,6 +464,7 @@
   }
 
   function render() {
+    renderMotivation();
     renderPunkte();
     renderSchnitt();
     renderZielFaecher();
@@ -566,5 +588,8 @@
   el.klausurDatum.min = isoAusDatum(heuteOhneZeit());
   render();
 
-  window.setInterval(renderKlausuren, 60 * 1000);
+  window.setInterval(function () {
+    renderMotivation();
+    renderKlausuren();
+  }, 60 * 1000);
 })();
