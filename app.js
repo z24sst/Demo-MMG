@@ -2,6 +2,8 @@
   'use strict';
 
   var STORAGE_KEY = 'noten-coach-v2';
+  var THEME_KEY = 'noten-coach-theme';
+  var CONFIG_URL = 'config.json';
   var MS_PRO_TAG = 24 * 60 * 60 * 1000;
 
   var state = { punkte: [], klausuren: [] };
@@ -28,7 +30,10 @@
     klausurFehler: document.getElementById('klausur-fehler'),
     klausurListe: document.getElementById('klausur-liste'),
     klausurLeer: document.getElementById('klausur-leer'),
-    resetBtn: document.getElementById('reset-btn')
+    resetBtn: document.getElementById('reset-btn'),
+    themeToggle: document.getElementById('theme-toggle'),
+    themeToggleIcon: document.getElementById('theme-toggle-icon'),
+    themeToggleText: document.getElementById('theme-toggle-text')
   };
 
   /* ---------- Hilfsfunktionen ---------- */
@@ -137,6 +142,63 @@
     });
     var gesamtGewicht = summeGewicht + gewichtDerArbeit;
     return (wunschschnitt * gesamtGewicht - summePunkte) / gewichtDerArbeit;
+  }
+
+  /* ---------- Darkmode ---------- */
+
+  function istTheme(wert) {
+    return wert === 'light' || wert === 'dark';
+  }
+
+  function aktivesTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  }
+
+  function setzeTheme(theme) {
+    var gewaehlt = istTheme(theme) ? theme : 'light';
+    var istDunkel = gewaehlt === 'dark';
+
+    document.documentElement.setAttribute('data-theme', gewaehlt);
+    el.themeToggle.setAttribute('aria-pressed', istDunkel ? 'true' : 'false');
+    el.themeToggleIcon.textContent = istDunkel ? '☀️' : '🌙';
+    el.themeToggleText.textContent = istDunkel ? 'Lightmode' : 'Darkmode';
+    el.themeToggle.setAttribute('title', istDunkel ? 'Zum hellen Design wechseln' : 'Zum dunklen Design wechseln');
+  }
+
+  function themeAusSpeicher() {
+    var wert;
+    try {
+      wert = window.localStorage.getItem(THEME_KEY);
+    } catch (fehler) {
+      wert = null;
+    }
+    return istTheme(wert) ? wert : null;
+  }
+
+  function speichereTheme(theme) {
+    try {
+      window.localStorage.setItem(THEME_KEY, theme);
+    } catch (fehler) {
+      /* localStorage kann blockiert sein – Demo läuft trotzdem weiter. */
+    }
+  }
+
+  function ladeThemeAusConfig() {
+    if (typeof window.fetch !== 'function') return;
+
+    window.fetch(CONFIG_URL, { cache: 'no-store' })
+      .then(function (antwort) {
+        if (!antwort.ok) throw new Error('config.json nicht lesbar');
+        return antwort.json();
+      })
+      .then(function (config) {
+        if (!config || !istTheme(config.theme)) return;
+        if (themeAusSpeicher() !== null) return;
+        setzeTheme(config.theme);
+      })
+      .catch(function () {
+        /* Ohne config.json (z. B. beim Öffnen per file://) bleibt das Standard-Theme aktiv. */
+      });
   }
 
   /* ---------- Persistenz ---------- */
@@ -480,6 +542,12 @@
     el.klausurDatum.value = '';
   });
 
+  el.themeToggle.addEventListener('click', function () {
+    var neuesTheme = aktivesTheme() === 'dark' ? 'light' : 'dark';
+    setzeTheme(neuesTheme);
+    speichereTheme(neuesTheme);
+  });
+
   el.resetBtn.addEventListener('click', function () {
     demoDaten();
     speichern();
@@ -487,6 +555,9 @@
   });
 
   /* ---------- Start ---------- */
+
+  setzeTheme(themeAusSpeicher() || 'light');
+  ladeThemeAusConfig();
 
   if (!laden()) {
     demoDaten();
