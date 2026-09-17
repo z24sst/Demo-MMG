@@ -1,17 +1,17 @@
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'noten-coach-v1';
+  var STORAGE_KEY = 'noten-coach-v2';
   var THEME_KEY = 'noten-coach-theme';
   var CONFIG_URL = 'config.json';
   var MS_PRO_TAG = 24 * 60 * 60 * 1000;
 
-  var state = { noten: [], klausuren: [] };
+  var state = { punkte: [], klausuren: [] };
 
   var el = {
     notenForm: document.getElementById('noten-form'),
     fach: document.getElementById('fach'),
-    note: document.getElementById('note'),
+    punkte: document.getElementById('punkte'),
     gewicht: document.getElementById('gewicht'),
     notenFehler: document.getElementById('noten-fehler'),
     notenListe: document.getElementById('noten-liste'),
@@ -21,7 +21,7 @@
     fachListe: document.getElementById('fach-liste'),
     zielForm: document.getElementById('ziel-form'),
     zielFach: document.getElementById('ziel-fach'),
-    zielNote: document.getElementById('ziel-note'),
+    zielPunkte: document.getElementById('ziel-punkte'),
     zielGewicht: document.getElementById('ziel-gewicht'),
     zielErgebnis: document.getElementById('ziel-ergebnis'),
     klausurForm: document.getElementById('klausur-form'),
@@ -42,13 +42,23 @@
     return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
   }
 
-  function formatNote(wert) {
-    return wert.toFixed(1).replace('.', ',');
+  function formatPunkte(wert) {
+    return String(Math.round(wert * 10) / 10).replace('.', ',');
   }
 
-  function stufeFuerNote(schnitt) {
-    if (schnitt <= 2.5) return 'gut';
-    if (schnitt <= 3.5) return 'mittel';
+  /* Punkte 13–15 = Note 1, 10–12 = Note 2, 7–9 = Note 3, 4–6 = Note 4, 1–3 = Note 5, 0 = Note 6. */
+  function noteFuerPunkte(punkte) {
+    if (punkte >= 13) return 1;
+    if (punkte >= 10) return 2;
+    if (punkte >= 7) return 3;
+    if (punkte >= 4) return 4;
+    if (punkte >= 1) return 5;
+    return 6;
+  }
+
+  function stufeFuerPunkte(schnitt) {
+    if (schnitt >= 10) return 'gut';
+    if (schnitt >= 7) return 'mittel';
     return 'kritisch';
   }
 
@@ -97,18 +107,18 @@
 
   function gewichteterSchnitt(eintraege) {
     var summeGewicht = 0;
-    var summeNoten = 0;
+    var summePunkte = 0;
     eintraege.forEach(function (eintrag) {
       summeGewicht += eintrag.gewicht;
-      summeNoten += eintrag.note * eintrag.gewicht;
+      summePunkte += eintrag.punkte * eintrag.gewicht;
     });
     if (summeGewicht === 0) return null;
-    return summeNoten / summeGewicht;
+    return summePunkte / summeGewicht;
   }
 
   function faecher() {
     var namen = [];
-    state.noten.forEach(function (eintrag) {
+    state.punkte.forEach(function (eintrag) {
       if (namen.indexOf(eintrag.fach) === -1) namen.push(eintrag.fach);
     });
     return namen.sort(function (a, b) {
@@ -116,22 +126,22 @@
     });
   }
 
-  function notenFuerFach(fach) {
-    return state.noten.filter(function (eintrag) {
+  function punkteFuerFach(fach) {
+    return state.punkte.filter(function (eintrag) {
       return eintrag.fach === fach;
     });
   }
 
-  function benoetigteNote(fach, wunschschnitt, gewichtDerArbeit) {
-    var eintraege = notenFuerFach(fach);
+  function benoetigtePunkte(fach, wunschschnitt, gewichtDerArbeit) {
+    var eintraege = punkteFuerFach(fach);
     var summeGewicht = 0;
-    var summeNoten = 0;
+    var summePunkte = 0;
     eintraege.forEach(function (eintrag) {
       summeGewicht += eintrag.gewicht;
-      summeNoten += eintrag.note * eintrag.gewicht;
+      summePunkte += eintrag.punkte * eintrag.gewicht;
     });
     var gesamtGewicht = summeGewicht + gewichtDerArbeit;
-    return (wunschschnitt * gesamtGewicht - summeNoten) / gewichtDerArbeit;
+    return (wunschschnitt * gesamtGewicht - summePunkte) / gewichtDerArbeit;
   }
 
   /* ---------- Darkmode ---------- */
@@ -213,27 +223,27 @@
     try {
       var daten = JSON.parse(roh);
       if (!daten || typeof daten !== 'object') return false;
-      state.noten = Array.isArray(daten.noten) ? daten.noten.filter(istNote).map(normalisiereNote) : [];
+      state.punkte = Array.isArray(daten.punkte) ? daten.punkte.filter(istPunkte).map(normalisierePunkte) : [];
       state.klausuren = Array.isArray(daten.klausuren)
         ? daten.klausuren.filter(istKlausur).map(normalisiereKlausur)
         : [];
-      return state.noten.length > 0 || state.klausuren.length > 0;
+      return state.punkte.length > 0 || state.klausuren.length > 0;
     } catch (fehler) {
       return false;
     }
   }
 
-  function istNote(eintrag) {
+  function istPunkte(eintrag) {
     return eintrag && typeof eintrag.fach === 'string' && eintrag.fach.trim() !== '' &&
-      isFinite(eintrag.note) && eintrag.note >= 1 && eintrag.note <= 6 &&
+      isFinite(eintrag.punkte) && eintrag.punkte >= 0 && eintrag.punkte <= 15 &&
       isFinite(eintrag.gewicht) && eintrag.gewicht > 0;
   }
 
-  function normalisiereNote(eintrag) {
+  function normalisierePunkte(eintrag) {
     return {
       id: typeof eintrag.id === 'string' ? eintrag.id : id(),
       fach: String(eintrag.fach).trim().slice(0, 40),
-      note: Number(eintrag.note),
+      punkte: Number(eintrag.punkte),
       gewicht: Number(eintrag.gewicht)
     };
   }
@@ -255,12 +265,12 @@
     var inDreiWochen = new Date(heuteOhneZeit().getTime() + 21 * MS_PRO_TAG);
     var inZehnTagen = new Date(heuteOhneZeit().getTime() + 10 * MS_PRO_TAG);
 
-    state.noten = [
-      { id: id(), fach: 'Mathematik', note: 2.0, gewicht: 2 },
-      { id: id(), fach: 'Mathematik', note: 3.3, gewicht: 1 },
-      { id: id(), fach: 'Deutsch', note: 2.7, gewicht: 2 },
-      { id: id(), fach: 'Deutsch', note: 1.7, gewicht: 1 },
-      { id: id(), fach: 'Englisch', note: 3.7, gewicht: 1 }
+    state.punkte = [
+      { id: id(), fach: 'Mathematik', punkte: 11, gewicht: 2 },
+      { id: id(), fach: 'Mathematik', punkte: 7, gewicht: 1 },
+      { id: id(), fach: 'Deutsch', punkte: 8, gewicht: 2 },
+      { id: id(), fach: 'Deutsch', punkte: 13, gewicht: 1 },
+      { id: id(), fach: 'Englisch', punkte: 5, gewicht: 1 }
     ];
     state.klausuren = [
       { id: id(), fach: 'Mathematik', datum: isoAusDatum(inZehnTagen) },
@@ -270,21 +280,22 @@
 
   /* ---------- Rendering ---------- */
 
-  function renderNoten() {
+  function renderPunkte() {
     el.notenListe.textContent = '';
 
-    state.noten.forEach(function (eintrag) {
+    state.punkte.forEach(function (eintrag) {
       var zeile = document.createElement('tr');
 
       var fachZelle = document.createElement('td');
       fachZelle.textContent = eintrag.fach;
 
-      var noteZelle = document.createElement('td');
+      var punkteZelle = document.createElement('td');
       var badge = document.createElement('span');
       badge.className = 'badge';
-      badge.dataset.stufe = stufeFuerNote(eintrag.note);
-      badge.textContent = formatNote(eintrag.note);
-      noteZelle.appendChild(badge);
+      badge.dataset.stufe = stufeFuerPunkte(eintrag.punkte);
+      badge.textContent = formatPunkte(eintrag.punkte);
+      badge.title = 'entspricht Note ' + noteFuerPunkte(eintrag.punkte);
+      punkteZelle.appendChild(badge);
 
       var gewichtZelle = document.createElement('td');
       gewichtZelle.textContent = '×' + eintrag.gewicht;
@@ -294,9 +305,9 @@
       loeschen.type = 'button';
       loeschen.className = 'btn-icon';
       loeschen.textContent = '✕';
-      loeschen.setAttribute('aria-label', 'Note ' + formatNote(eintrag.note) + ' in ' + eintrag.fach + ' löschen');
+      loeschen.setAttribute('aria-label', formatPunkte(eintrag.punkte) + ' Punkte in ' + eintrag.fach + ' löschen');
       loeschen.addEventListener('click', function () {
-        state.noten = state.noten.filter(function (kandidat) {
+        state.punkte = state.punkte.filter(function (kandidat) {
           return kandidat.id !== eintrag.id;
         });
         speichern();
@@ -305,25 +316,25 @@
       aktionZelle.appendChild(loeschen);
 
       zeile.appendChild(fachZelle);
-      zeile.appendChild(noteZelle);
+      zeile.appendChild(punkteZelle);
       zeile.appendChild(gewichtZelle);
       zeile.appendChild(aktionZelle);
       el.notenListe.appendChild(zeile);
     });
 
-    el.notenLeer.hidden = state.noten.length > 0;
+    el.notenLeer.hidden = state.punkte.length > 0;
   }
 
   function renderSchnitt() {
-    var schnitt = gewichteterSchnitt(state.noten);
+    var schnitt = gewichteterSchnitt(state.punkte);
 
     if (schnitt === null) {
       el.schnitt.textContent = '–';
       el.schnitt.dataset.stufe = 'neutral';
-      el.schnittText.textContent = 'Noch keine Noten erfasst.';
+      el.schnittText.textContent = 'Noch keine Punkte erfasst.';
     } else {
-      var stufe = stufeFuerNote(schnitt);
-      el.schnitt.textContent = formatNote(schnitt);
+      var stufe = stufeFuerPunkte(schnitt);
+      el.schnitt.textContent = formatPunkte(schnitt);
       el.schnitt.dataset.stufe = stufe;
       el.schnittText.textContent = {
         gut: 'Stark! Weiter so.',
@@ -334,7 +345,7 @@
 
     el.fachListe.textContent = '';
     faecher().forEach(function (fach) {
-      var fachSchnitt = gewichteterSchnitt(notenFuerFach(fach));
+      var fachSchnitt = gewichteterSchnitt(punkteFuerFach(fach));
       if (fachSchnitt === null) return;
 
       var eintrag = document.createElement('li');
@@ -343,8 +354,9 @@
 
       var badge = document.createElement('span');
       badge.className = 'badge';
-      badge.dataset.stufe = stufeFuerNote(fachSchnitt);
-      badge.textContent = formatNote(fachSchnitt);
+      badge.dataset.stufe = stufeFuerPunkte(fachSchnitt);
+      badge.textContent = formatPunkte(fachSchnitt);
+      badge.title = 'entspricht Note ' + noteFuerPunkte(fachSchnitt);
 
       eintrag.appendChild(name);
       eintrag.appendChild(badge);
@@ -431,7 +443,7 @@
   }
 
   function render() {
-    renderNoten();
+    renderPunkte();
     renderSchnitt();
     renderZielFaecher();
     renderKlausuren();
@@ -443,15 +455,15 @@
     event.preventDefault();
 
     var fach = el.fach.value.trim();
-    var note = Number(el.note.value.replace(',', '.'));
+    var punkte = Number(el.punkte.value.replace(',', '.'));
     var gewicht = Number(el.gewicht.value);
 
     if (fach === '') {
       zeigeFehler(el.notenFehler, 'Bitte gib ein Fach an.');
       return;
     }
-    if (!isFinite(note) || note < 1 || note > 6) {
-      zeigeFehler(el.notenFehler, 'Die Note muss zwischen 1 und 6 liegen.');
+    if (!isFinite(punkte) || punkte < 0 || punkte > 15) {
+      zeigeFehler(el.notenFehler, 'Die Punkte müssen zwischen 0 und 15 liegen.');
       return;
     }
     if (!isFinite(gewicht) || gewicht <= 0) {
@@ -460,11 +472,11 @@
     }
 
     zeigeFehler(el.notenFehler, '');
-    state.noten.push({ id: id(), fach: fach.slice(0, 40), note: note, gewicht: gewicht });
+    state.punkte.push({ id: id(), fach: fach.slice(0, 40), punkte: punkte, gewicht: gewicht });
     speichern();
     render();
 
-    el.note.value = '';
+    el.punkte.value = '';
     el.fach.focus();
   });
 
@@ -472,38 +484,38 @@
     event.preventDefault();
 
     var fach = el.zielFach.value;
-    var wunsch = Number(el.zielNote.value.replace(',', '.'));
+    var wunsch = Number(el.zielPunkte.value.replace(',', '.'));
     var gewicht = Number(el.zielGewicht.value);
 
     if (!fach) {
       el.zielErgebnis.dataset.stufe = 'mittel';
-      el.zielErgebnis.textContent = 'Lege zuerst eine Note in einem Fach an.';
+      el.zielErgebnis.textContent = 'Lege zuerst Punkte in einem Fach an.';
       return;
     }
-    if (!isFinite(wunsch) || wunsch < 1 || wunsch > 6 || !isFinite(gewicht) || gewicht <= 0) {
+    if (!isFinite(wunsch) || wunsch < 0 || wunsch > 15 || !isFinite(gewicht) || gewicht <= 0) {
       el.zielErgebnis.dataset.stufe = 'mittel';
-      el.zielErgebnis.textContent = 'Bitte prüfe Wunschschnitt (1–6) und Gewichtung (> 0).';
+      el.zielErgebnis.textContent = 'Bitte prüfe Wunschschnitt (0–15 Punkte) und Gewichtung (> 0).';
       return;
     }
 
-    var noetig = benoetigteNote(fach, wunsch, gewicht);
+    var noetig = benoetigtePunkte(fach, wunsch, gewicht);
 
-    if (noetig < 1) {
+    if (noetig > 15) {
       el.zielErgebnis.dataset.stufe = 'kritisch';
-      el.zielErgebnis.textContent = 'Ein Schnitt von ' + formatNote(wunsch) + ' in ' + fach +
-        ' ist mit dieser Arbeit rechnerisch nicht mehr erreichbar (nötig wäre ' + formatNote(noetig) + ').';
+      el.zielErgebnis.textContent = 'Ein Schnitt von ' + formatPunkte(wunsch) + ' Punkten in ' + fach +
+        ' ist mit dieser Arbeit rechnerisch nicht mehr erreichbar (nötig wären ' + formatPunkte(noetig) + ' Punkte).';
       return;
     }
-    if (noetig > 6) {
+    if (noetig < 0) {
       el.zielErgebnis.dataset.stufe = 'gut';
-      el.zielErgebnis.textContent = 'Entspann dich: Dein Ziel von ' + formatNote(wunsch) + ' in ' + fach +
-        ' hältst du auch mit einer 6 in dieser Arbeit.';
+      el.zielErgebnis.textContent = 'Entspann dich: Dein Ziel von ' + formatPunkte(wunsch) + ' Punkten in ' + fach +
+        ' hältst du auch mit 0 Punkten in dieser Arbeit.';
       return;
     }
 
-    el.zielErgebnis.dataset.stufe = stufeFuerNote(noetig);
-    el.zielErgebnis.textContent = 'Du brauchst mindestens eine ' + formatNote(noetig) + ' in ' + fach +
-      ', um auf einen Schnitt von ' + formatNote(wunsch) + ' zu kommen.';
+    el.zielErgebnis.dataset.stufe = stufeFuerPunkte(noetig);
+    el.zielErgebnis.textContent = 'Du brauchst mindestens ' + formatPunkte(noetig) + ' Punkte in ' + fach +
+      ', um auf einen Schnitt von ' + formatPunkte(wunsch) + ' Punkten zu kommen.';
   });
 
   el.klausurForm.addEventListener('submit', function (event) {

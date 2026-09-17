@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Noten-Coach – Notenrechner &amp; Klausur-Countdown</title>
+  <title>Noten-Coach – Punkterechner &amp; Klausur-Countdown</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="header">
     <div>
       <h1>Noten-Coach</h1>
-      <p class="subtitle">Notenrechner &amp; Klausur-Countdown – Live-Demo „KI in der Arbeitswelt“</p>
+      <p class="subtitle">Punkterechner &amp; Klausur-Countdown – Live-Demo „KI in der Arbeitswelt“</p>
     </div>
     <button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false">
       <span class="theme-toggle-icon" id="theme-toggle-icon" aria-hidden="true">🌙</span>
@@ -20,7 +20,7 @@
 
   <main class="layout">
     <section class="card" aria-labelledby="noten-titel">
-      <h2 id="noten-titel">Meine Noten</h2>
+      <h2 id="noten-titel">Meine Punkte</h2>
 
       <form id="noten-form" class="form-row" autocomplete="off">
         <label class="field">
@@ -28,36 +28,36 @@
           <input type="text" id="fach" name="fach" placeholder="z. B. Mathematik" required maxlength="40">
         </label>
         <label class="field">
-          <span>Note (1–6)</span>
-          <input type="number" id="note" name="note" min="1" max="6" step="0.1" placeholder="2,3" required>
+          <span>Punkte (0–15)</span>
+          <input type="number" id="punkte" name="punkte" min="0" max="15" step="1" placeholder="11" required>
         </label>
         <label class="field">
           <span>Gewichtung</span>
           <input type="number" id="gewicht" name="gewicht" min="0.5" max="3" step="0.5" value="1" required>
         </label>
-        <button type="submit" class="btn btn-primary">Note hinzufügen</button>
+        <button type="submit" class="btn btn-primary">Punkte hinzufügen</button>
       </form>
       <p id="noten-fehler" class="error" role="alert" hidden></p>
 
       <table class="noten-tabelle">
-        <caption class="sr-only">Liste aller erfassten Noten</caption>
+        <caption class="sr-only">Liste aller erfassten Punkte</caption>
         <thead>
           <tr>
             <th scope="col">Fach</th>
-            <th scope="col">Note</th>
+            <th scope="col">Punkte</th>
             <th scope="col">Gewichtung</th>
             <th scope="col"><span class="sr-only">Aktion</span></th>
           </tr>
         </thead>
         <tbody id="noten-liste"></tbody>
       </table>
-      <p id="noten-leer" class="hint" hidden>Noch keine Noten erfasst – füge oben dein erstes Fach hinzu.</p>
+      <p id="noten-leer" class="hint" hidden>Noch keine Punkte erfasst – füge oben dein erstes Fach hinzu.</p>
     </section>
 
     <section class="card" aria-labelledby="schnitt-titel">
-      <h2 id="schnitt-titel">Notendurchschnitt</h2>
+      <h2 id="schnitt-titel">Punktedurchschnitt</h2>
       <p class="schnitt" id="schnitt" data-stufe="neutral">–</p>
-      <p class="schnitt-text" id="schnitt-text">Noch keine Noten erfasst.</p>
+      <p class="schnitt-text" id="schnitt-text">Noch keine Punkte erfasst.</p>
 
       <h3>Schnitt pro Fach</h3>
       <ul class="fach-liste" id="fach-liste"></ul>
@@ -65,15 +65,15 @@
 
     <section class="card" aria-labelledby="ziel-titel">
       <h2 id="ziel-titel">Was brauche ich?</h2>
-      <p class="hint">Welche Note brauchst du in der nächsten Arbeit, um dein Ziel zu erreichen?</p>
+      <p class="hint">Wie viele Punkte brauchst du in der nächsten Arbeit, um dein Ziel zu erreichen?</p>
       <form id="ziel-form" class="form-row" autocomplete="off">
         <label class="field">
           <span>Fach</span>
           <select id="ziel-fach" required></select>
         </label>
         <label class="field">
-          <span>Wunschschnitt</span>
-          <input type="number" id="ziel-note" min="1" max="6" step="0.1" value="2.0" required>
+          <span>Wunschschnitt (Punkte)</span>
+          <input type="number" id="ziel-punkte" min="0" max="15" step="0.1" value="11" required>
         </label>
         <label class="field">
           <span>Gewichtung der Arbeit</span>
