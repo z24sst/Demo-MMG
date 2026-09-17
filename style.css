@@ -1,47 +1,53 @@
 :root {
   color-scheme: light;
-  --bg: #f4f6fb;
+  --bg: #fff1f8;
+  --bg-akzent: radial-gradient(circle at 12% -10%, rgba(255, 143, 199, 0.35), transparent 45%),
+    radial-gradient(circle at 92% 0%, rgba(214, 36, 124, 0.18), transparent 40%);
   --card: #ffffff;
-  --field-bg: #ffffff;
-  --text: #1f2933;
-  --muted: #61707d;
-  --accent: #2a5bd7;
-  --accent-hover: #1d46ad;
+  --field-bg: #fffafd;
+  --text: #3b1d2d;
+  --muted: #8d5f77;
+  --accent: #d6247c;
+  --accent-hover: #ab175f;
   --accent-text: #ffffff;
+  --accent-soft: #ffd9ec;
   --gut: #1f9d55;
   --mittel: #d99100;
   --mittel-text: #8a5c00;
-  --kritisch: #d64545;
-  --border: #dde3ec;
-  --badge-bg: rgba(97, 112, 125, 0.12);
+  --kritisch: #d6245a;
+  --border: #f6cde2;
+  --badge-bg: rgba(214, 36, 124, 0.12);
   --gut-bg: rgba(31, 157, 85, 0.12);
   --mittel-bg: rgba(217, 145, 0, 0.14);
-  --kritisch-bg: rgba(214, 69, 69, 0.12);
-  --accent-bg: rgba(42, 91, 215, 0.08);
-  --shadow: 0 1px 3px rgba(31, 41, 51, 0.06);
+  --kritisch-bg: rgba(214, 36, 90, 0.12);
+  --accent-bg: rgba(214, 36, 124, 0.1);
+  --shadow: 0 1px 3px rgba(148, 22, 92, 0.12);
   --radius: 12px;
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #121821;
-  --card: #1b2430;
-  --field-bg: #131b25;
-  --text: #e9eef5;
-  --muted: #aebccc;
-  --accent: #7aa2ff;
-  --accent-hover: #9cbaff;
-  --accent-text: #10192a;
+  --bg: #1b101a;
+  --bg-akzent: radial-gradient(circle at 12% -10%, rgba(255, 111, 181, 0.22), transparent 45%),
+    radial-gradient(circle at 92% 0%, rgba(255, 111, 181, 0.14), transparent 40%);
+  --card: #271927;
+  --field-bg: #1f141f;
+  --text: #fdeaf4;
+  --muted: #dba9c6;
+  --accent: #ff7ebc;
+  --accent-hover: #ffa4d1;
+  --accent-text: #2b0a1b;
+  --accent-soft: #46203a;
   --gut: #5ddb95;
   --mittel: #f3c05a;
   --mittel-text: #f3c05a;
-  --kritisch: #ff8e8e;
-  --border: #2d3a4a;
-  --badge-bg: rgba(174, 188, 204, 0.16);
+  --kritisch: #ff8ea8;
+  --border: #4a2a40;
+  --badge-bg: rgba(255, 126, 188, 0.18);
   --gut-bg: rgba(93, 219, 149, 0.16);
   --mittel-bg: rgba(243, 192, 90, 0.16);
-  --kritisch-bg: rgba(255, 142, 142, 0.16);
-  --accent-bg: rgba(122, 162, 255, 0.14);
+  --kritisch-bg: rgba(255, 142, 168, 0.16);
+  --accent-bg: rgba(255, 126, 188, 0.16);
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 
@@ -52,8 +58,11 @@
 body {
   margin: 0;
   padding: 0 1rem 3rem;
+  min-height: 100vh;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: var(--bg-akzent);
+  background-repeat: no-repeat;
   color: var(--text);
   line-height: 1.5;
 }
@@ -99,6 +108,42 @@ body {
 .header h1 {
   margin: 0;
   font-size: clamp(1.8rem, 4vw, 2.6rem);
+  color: var(--accent);
+}
+
+.motivation {
+  max-width: 1100px;
+  margin: 0 auto 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid var(--accent-soft);
+  border-left: 5px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent-bg);
+  box-shadow: var(--shadow);
+}
+
+.motivation-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.motivation-text {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.motivation-tag {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
 }
 
 .subtitle {
@@ -118,6 +163,7 @@ body {
 .card {
   background: var(--card);
   border: 1px solid var(--border);
+  border-top: 4px solid var(--accent);
   border-radius: var(--radius);
   padding: 1.25rem;
   box-shadow: var(--shadow);
@@ -126,11 +172,13 @@ body {
 .card h2 {
   margin-top: 0;
   font-size: 1.25rem;
+  color: var(--accent);
 }
 
 .card h3 {
   font-size: 1rem;
   margin-bottom: 0.5rem;
+  color: var(--accent);
 }
 
 .form-row {
@@ -185,8 +233,8 @@ body {
 
 .btn-ghost {
   background: transparent;
-  border: 1px solid var(--border);
-  color: var(--muted);
+  border: 1px solid var(--accent);
+  color: var(--accent);
 }
 
 .btn-icon {
@@ -213,7 +261,7 @@ body {
 }
 
 .noten-tabelle th {
-  color: var(--muted);
+  color: var(--accent);
   font-weight: 600;
   font-size: 0.8rem;
   text-transform: uppercase;

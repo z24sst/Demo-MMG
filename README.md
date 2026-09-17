@@ -9,7 +9,7 @@ Eine Single-Page-Webapp ohne Build-Schritt und ohne Abhängigkeiten – nur HTML
 | Datei | Inhalt |
 | --- | --- |
 | `index.html` | Struktur der Seite (Punkte, Durchschnitt, Zielrechner, Countdown) |
-| `style.css` | Layout, responsive Karten und Farblogik |
+| `style.css` | Layout, responsive Karten, Pink-Design und Farblogik |
 | `app.js` | Berechnungen, Speicherung im `localStorage`, Rendering |
 | `config.json` | Voreinstellung des Designs (`"theme": "light"` oder `"dark"`) |
 
@@ -22,7 +22,8 @@ Eine Single-Page-Webapp ohne Build-Schritt und ohne Abhängigkeiten – nur HTML
   inklusive Hinweis, wenn das Ziel nicht mehr erreichbar oder bereits sicher ist.
 - **Klausur-Countdown**: Termine eintragen, verbleibende Tage werden sortiert und farblich hervorgehoben.
 - **Demo-Daten**: beim ersten Start vorbefüllt, jederzeit über den Button im Footer zurücksetzbar.
-- **Darkmode**: Umschalten über den Toggle in der Kopfzeile, kontraststarke helle und dunkle Farbpalette.
+- **Darkmode**: Umschalten über den Toggle in der Kopfzeile, kontraststarke helle und dunkle Pink-Palette.
+- **Motivationsspruch**: passend zum aktuellen Wochentag, direkt unter der Kopfzeile.
 
 ### Punkte und Noten
 
@@ -69,7 +70,7 @@ python3 -m http.server 8000
 
 ### Ablauf für die Live-Demo
 
-1. Startseite mit Demo-Daten zeigen: Schnitt und Countdown sind sofort sichtbar.
+1. Startseite mit Demo-Daten zeigen: Motivationsspruch des Tages, Schnitt und Countdown sind sofort sichtbar.
 2. Eine schlechte Punktzahl ergänzen und beobachten, wie die Farbe des Schnitts umschlägt.
 3. Im Zielrechner einen Wunschschnitt setzen und die nötigen Punkte berechnen lassen.
 4. Eine neue Klausur eintragen – der Countdown sortiert sich automatisch ein.
