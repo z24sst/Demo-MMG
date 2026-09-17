@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,8 +8,14 @@
 </head>
 <body>
   <header class="header">
-    <h1>Noten-Coach</h1>
-    <p class="subtitle">Notenrechner &amp; Klausur-Countdown – Live-Demo „KI in der Arbeitswelt“</p>
+    <div>
+      <h1>Noten-Coach</h1>
+      <p class="subtitle">Notenrechner &amp; Klausur-Countdown – Live-Demo „KI in der Arbeitswelt“</p>
+    </div>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false">
+      <span class="theme-toggle-icon" id="theme-toggle-icon" aria-hidden="true">🌙</span>
+      <span id="theme-toggle-text">Darkmode</span>
+    </button>
   </header>
 
   <main class="layout">
