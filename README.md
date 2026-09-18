@@ -2,6 +2,8 @@
 
 Live-Demo für Vortrag am Gymnasium: KI in der Arbeitswelt – Notenrechner & Klausur-Countdown
 
+> **Hinweis:** Dieses Projekt dient ausschließlich zu Test- und Demonstrationszwecken und ist nicht für den produktiven Einsatz gedacht.
+
 ## Noten-Coach
 
 Eine Single-Page-Webapp ohne Build-Schritt und ohne Abhängigkeiten – nur HTML, CSS und JavaScript.
